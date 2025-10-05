@@ -9,6 +9,7 @@ from pathlib import Path
 import logging
 
 from apps.api.models.schemas import DocumentUploadResponse, DocumentInfo
+from apps.api.models.db_models import Document, DocumentChunk
 from apps.api.core.database import get_db
 
 router = APIRouter(prefix="/documents", tags=["documents"])
