@@ -2,3 +2,8 @@ README.md
 
 .idea
 .venv
+
+# Environment variables
+.env
+.env.local
+.env.example

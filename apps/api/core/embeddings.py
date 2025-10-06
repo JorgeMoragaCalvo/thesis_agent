@@ -59,8 +59,56 @@ class EmbeddingService:
         try:
             all_embeddings = []
 
-            for i in range(0, len(texts), batch_size):
+            # This pattern is commonly used for batch processing -
+            # dividing a large list into smaller chunks to process incrementally.
+            # Process texts in batches of batch_size
+            for i in range(0, len(texts), batch_size): # 0 (start), len(texts) (end), batch_size step (increment)
+                batch = texts[i:i + batch_size]
+                # Clean texts
+                cleaned_batch = [text.replace("\n", " ").strip() for text in batch]
 
+                response = self.client.embeddings.create(
+                    input=cleaned_batch,
+                    model=self.model
+                )
 
+                batch_embeddings = [item.embedding for item in response.data]
+                all_embeddings.extend(batch_embeddings)
+
+                logger.info(f"Generated embeddings for batch {i // batch_size + 1} "
+                            f"({len(batch)} texts)")
+
+            return all_embeddings
+        except Exception as e:
+            logger.error(f"Error generating batch embeddings: {e}")
+            raise
+
+    def cosine_similarity(self, vec1: List[float], vec2: List[float]) -> float:
+        """
+        Calculate cosine similarity between two vectors.
+
+        Args:
+            vec1: First embedding vector
+            vec2: Second embedding vector
+
+        Returns:
+            Cosine similarity score (0 to 1)
+        """
+        try:
+            arr1 = np.array(vec1)
+            arr2 = np.array(vec2)
+
+            dot_product = np.dot(arr1, arr2)
+            norm1 = np.linalg.norm(arr1)
+            norm2 = np.linalg.norm(arr2)
+
+            if norm1 == 0 or norm2 == 0:
+                return 0.0
+
+            similarity = dot_product / (norm1 * norm2)
+            return float(similarity)
+        except Exception as e:
+            logger.error(f"Error calculating cosine similarity: {e}")
+            raise
 
 embedding_service = EmbeddingService()
