@@ -194,3 +194,53 @@ class RAGPipeline:
         except Exception as e:
             logger.error(f"Error generating answer: {e}")
             raise
+
+    def query(self, query:str, db: Session, top_k: int = None,
+              similarity_threshold: float = None) -> QueryResponse:
+        """
+        Complete RAG pipeline: retrieve and generate answer.
+
+        Args:
+            query: User query
+            db: Database session
+            top_k: Number of top results to return
+            similarity_threshold: Minimum similarity score threshold
+
+        Returns:
+            QueryResponse with answer and retrieved chunks
+        """
+        try:
+            start_time = time.time()
+            # Retrieve relevant chunks
+            retrieved_chunks = self.retrieval_relevant_chunks(
+                query, db, top_k, similarity_threshold
+            )
+
+            answer = self.generate_answer(query, retrieve_chunks)
+            response_time = time.time() - start_time
+            # Log the query
+            query_log = QueryLog(
+                query=query,
+                response=answer,
+                retrieved_chunks=json.dumps([c.chunk_id for c in retrieve_chunks]),
+                similarity_score=json.dumps([c.similarity_score for c in retrieve_chunks]),
+                response_time=response_time
+            )
+            db.add(query_log)
+            db.commit()
+            # Create response
+            response = QueryResponse(
+                query=query,
+                answer=answer,
+                retrieved_chunks=retrieved_chunks,
+                response_time=response_time
+            )
+
+            logger.info(f"Query completed in {response_time:.2f} seconds")
+            return response
+        except Exception as e:
+            logger.error(f"Error in RAG query pipeline: {e}")
+            raise
+
+# Singleton instance of RAGPipeline. Global RAG pipeline instance.
+rag_pipeline = RAGPipeline()
