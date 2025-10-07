@@ -216,14 +216,14 @@ class RAGPipeline:
                 query, db, top_k, similarity_threshold
             )
 
-            answer = self.generate_answer(query, retrieve_chunks)
+            answer = self.generate_answer(query, retrieved_chunks)
             response_time = time.time() - start_time
             # Log the query
             query_log = QueryLog(
                 query=query,
                 response=answer,
-                retrieved_chunks=json.dumps([c.chunk_id for c in retrieve_chunks]),
-                similarity_score=json.dumps([c.similarity_score for c in retrieve_chunks]),
+                retrieved_chunks=json.dumps([c.chunk_id for c in retrieved_chunks]),
+                similarity_score=json.dumps([c.similarity_score for c in retrieved_chunks]),
                 response_time=response_time
             )
             db.add(query_log)
