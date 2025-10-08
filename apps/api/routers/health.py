@@ -29,4 +29,4 @@ def health_check(db: Session = Depends(get_db)) -> HealthResponse:
         version=settings.app_version,
         database_connected=db_connected,
         timestamp=datetime.now()
-    )now
+    )
