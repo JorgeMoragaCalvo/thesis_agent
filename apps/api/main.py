@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 import logging
 import sys
 
@@ -16,25 +17,10 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI(
-    title=settings.app_name,
-    description="AI-driven agent for personalized student support in Optimization Methods course",
-    version=settings.app_version,
-    debug=settings.debug
-)
-
-# Configure cors
-app.middleware(
-    CORSMiddleware,
-    allow_origins=settings.cors_allow_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize resources on application startup."""
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    """Manage application lifespan events."""
+    # Startup
     logger.info(f"Starting {settings.app_name} v{settings.app_version}...")
     logger.info(f"Environment: {settings.environment}")
 
@@ -43,11 +29,26 @@ async def startup_event():
         logger.info("Database connection established")
     else:
         logger.error("Database connection failed")
+    yield
 
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Clean up resources on application shutdown."""
     logger.info("Shutting down application...")
+
+app = FastAPI(
+    title=settings.app_name,
+    description="AI-driven agent for personalized student support in Optimization Methods course",
+    version=settings.app_version,
+    debug=settings.debug,
+    lifespan=lifespan
+)
+
+# Configure cors
+app.middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(documents.router)
 app.include_router(query.router)
