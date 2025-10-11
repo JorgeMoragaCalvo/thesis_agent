@@ -42,6 +42,7 @@ app = FastAPI(
 )
 
 # Configure cors
+# This is essential for a web API that might be called from a frontend (e.g., a React app), enabling secure cross-origin interactions.
 app.middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -50,20 +51,22 @@ app.middleware(
     allow_headers=["*"],
 )
 
-app.include_router(documents.router)
-app.include_router(query.router)
+# Include routers
+app.include_router(documents.router) # Likely handles CRUD operations for documents
+app.include_router(query.router) # Probably processes user queries
 app.include_router(health.router)
 
-@app.get("/") # Root endpoint
+@app.get("/") # Root endpoint. Purpose: Provides basic app metadata and links to useful endpoints.
 def root():
     return {
         "name": settings.app_name,
         "version": settings.app_version,
         "status": "running",
-        "docs": "/docs",
-        "health": "/health"
+        "docs": "/docs", # Swagger UI
+        "health": "/health" # Links to a health check endpoint from the health router.
     }
 
+# Main execution block
 if __name__ == "__main__":
     import uvicorn
 

@@ -4,7 +4,7 @@ from typing import List
 class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=".env", # Specifies that settings can be loaded from a `.env` file in the project root.
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore"
@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     postgres_host: str = 'localhost'
     postgres_port: int = 5432
 
-    # Application Configuration
+    # Application Configuration. Basic Metadata
     app_name: str = 'Optimization AI Tutor'
     app_version: str = '0.1.0'
     debug: bool = True
@@ -38,7 +38,7 @@ class Settings(BaseSettings):
     # API Configuration
     api_host: str = '0.0.0.0'
     api_port: int = 8000
-    cors_origins: List[str] = ['http://localhost:8501', 'http://localhost:3000']
+    cors_origins: List[str] = ['http://localhost:8501', 'http://localhost:3000'] # 8501 for Streamlit, 3000 for React
 
     @property
     def async_database_url(self) -> str:
@@ -48,5 +48,5 @@ class Settings(BaseSettings):
     def sync_database_url(self) -> str:
         return self.database_url.replace('postgresql://', 'postgresql+psycopg2://')
 
-# Global settings
+# Global settings. Global instances of Settings are available in other modules.
 settings = Settings()
