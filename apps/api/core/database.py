@@ -9,6 +9,8 @@ from apps.api.models.db_models import Base
 
 logger = logging.getLogger(__name__)
 
+# This is the core class, responsible for all database-related operations.
+# It follows a singleton-like pattern via the global db_manager instance
 class DatabaseManager:
     """Manager class for database operations."""
     def __init__(self):
@@ -46,6 +48,7 @@ class DatabaseManager:
         Base.metadata.drop_all(bind=self.engine)
         logger.warning("All database tables dropped")
 
+    # creates a session, yields it, and handles cleanup.
     @contextmanager
     def get_session(self) -> Generator[Session, None, None]:
         """
@@ -56,12 +59,12 @@ class DatabaseManager:
             # Use session here
             pass
         """
-        session = self.SessionLocal()
+        session = self.SessionLocal() # creates a new session
         try:
             yield session
-            session.commit()
+            session.commit() # saves changes if no errors
         except Exception as e:
-            session.rollback()
+            session.rollback() # Reverts changes on exceptions.
             logger.error(f"Database session error: {e}")
             raise
         finally:
@@ -71,12 +74,13 @@ class DatabaseManager:
         """Check if the database connection is working."""
         try:
             with self.engine.connect() as conn:
-                conn.execute(text("SELECT 1"))
+                conn.execute(text("SELECT 1")) # Attempts a simple query
                 return True
         except Exception as e:
             logger.error(f"Database connection failed: {e}")
             return False
 
+# Creates a single, global instance of DatabaseManager for app-wide use (singleton)
 db_manager = DatabaseManager()
 
 def get_db() -> Generator[Session, None, None]:
@@ -91,6 +95,6 @@ def get_db() -> Generator[Session, None, None]:
     """
     session = db_manager.SessionLocal()
     try:
-        yield session
+        yield session # Gives the session to FastAPI routes
     finally:
         session.close()

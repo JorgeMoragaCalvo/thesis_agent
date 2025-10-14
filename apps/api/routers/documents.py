@@ -187,7 +187,7 @@ def delete_document(document_id: int, db: Session = Depends(get_db)):
         # Delete associated chunks
         db.query(DocumentChunk).filter(DocumentChunk.document_id == document_id).delete()
 
-        # Delete file from filesystem
+        # Delete the file from the filesystem
         file_path = Path(document.file_path)
         if file_path.exists():
             file_path.unlink()
@@ -206,4 +206,3 @@ def delete_document(document_id: int, db: Session = Depends(get_db)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error deleting document: {str(e)}"
         )
-e

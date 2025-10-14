@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, DateTime, Float, Text, func
 from sqlalchemy.ext.declarative import declarative_base
 from pgvector.sqlalchemy import Vector
 
+# This creates a base class (Base) that all subsequent model classes will inherit from.
 Base = declarative_base()
 
 class Document(Base):
