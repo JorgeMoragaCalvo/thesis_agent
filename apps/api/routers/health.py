@@ -7,7 +7,7 @@ from apps.api.models.schemas import HealthResponse
 from apps.api.core.database import get_db
 from apps.api.config import settings
 
-router = APIRouter(prefix="health", tags=["health"])
+router = APIRouter(prefix="/health", tags=["health"])
 
 @router.get("/", response_model=HealthResponse)
 def health_check(db: Session = Depends(get_db)) -> HealthResponse:

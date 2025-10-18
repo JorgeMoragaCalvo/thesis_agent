@@ -46,7 +46,7 @@ class RAGPipeline:
                 file_path=file_path,
                 file_type=file_type,
                 content=full_content,
-                metadata=json.dumps({"chunk_count": len(chunks)})
+                extra_metadata=json.dumps({"chunk_count": len(chunks)})
             )
             db.add(document)
             db.flush() # Get document ID without committing
@@ -60,7 +60,7 @@ class RAGPipeline:
                     chunk_text=chunk["text"],
                     chunk_index=idx,
                     embedding=embedding,
-                    metadata=json.dumps(chunk["metadata"])
+                    extra_metadata=json.dumps(chunk["metadata"])
                 )
                 db.add(chunk_record)
             db.commit()

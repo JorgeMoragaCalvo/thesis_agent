@@ -14,7 +14,7 @@ class Document(Base):
     file_path = Column(String(512), nullable=False)
     file_type = Column(String(50), nullable=False) # pdf, txt, etc.
     content = Column(Text, nullable=False)
-    metadata = Column(Text, nullable=True) # JSON string for additional metadata
+    extra_metadata = Column(Text, nullable=True) # JSON string for additional metadata
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -30,7 +30,7 @@ class DocumentChunk(Base):
     chunk_text = Column(Text, nullable=False)
     chunk_index = Column(Integer, nullable=False) # Order of the chunk in the document
     embedding = Column(Vector(1536), nullable=False) # OpenAI embedding dimension
-    metadata = Column(Text, nullable=True) # JSON string for chunk-specific metadata
+    extra_metadata = Column(Text, nullable=True) # JSON string for chunk-specific metadata
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     def __repr__(self):

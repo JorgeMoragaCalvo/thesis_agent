@@ -43,7 +43,7 @@ app = FastAPI(
 
 # Configure cors
 # This is essential for a web API that might be called from a frontend (e.g., a React app), enabling secure cross-origin interactions.
-app.middleware(
+app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
     allow_credentials=True,

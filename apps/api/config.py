@@ -18,8 +18,8 @@ class Settings(BaseSettings):
     # Database Configuration
     database_url: str
     postgres_user: str = 'postgres'
-    postgres_password: str = 'postgres123'
-    postgres_db: str = 'thesis_agents'
+    POSTGRES_PASSWORD: str
+    postgres_db: str = 'security'
     postgres_host: str = 'localhost'
     postgres_port: int = 5432
 
