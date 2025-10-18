@@ -32,6 +32,8 @@ async def lifespan(_app: FastAPI):
     yield
 
     logger.info("Shutting down application...")
+    # Drop all tables on shutdown
+    db_manager.drop_tables() # Only in the testing stage
 
 app = FastAPI(
     title=settings.app_name,
