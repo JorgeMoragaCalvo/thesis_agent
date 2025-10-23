@@ -16,18 +16,22 @@ class Settings(BaseSettings):
     OPENAI_CHAT_MODEL: str = "gpt-4-turbo-preview"
 
     # Database Configuration
-    database_url: str
-    postgres_user: str = 'postgres'
-    POSTGRES_PASSWORD: str
-    postgres_db: str = 'security'
-    postgres_host: str = 'localhost'
-    postgres_port: int = 5432
+    # database_url: str
+    # postgres_user: str = 'postgres'
+    # POSTGRES_PASSWORD: str
+    # postgres_db: str = 'security'
+    # postgres_host: str = 'localhost'
+    # postgres_port: int = 5432
+
+    chroma_persis_directory: str = './chroma_data'
+    chroma_collection_documents: str = 'documents'
+    chroma_collection_chunks: str = 'document_chunks'
 
     # Application Configuration. Basic Metadata
     app_name: str = 'Optimization AI Tutor'
     app_version: str = '0.1.0'
     debug: bool = True
-    environment: str = 'dev'
+    environment: str = 'development'
 
     # RAG Configuration
     chunk_size: int = 1000
@@ -40,13 +44,13 @@ class Settings(BaseSettings):
     api_port: int = 8000
     cors_origins: List[str] = ['http://localhost:8501', 'http://localhost:3000'] # 8501 for Streamlit, 3000 for React
 
-    @property
-    def async_database_url(self) -> str:
-        return self.database_url.replace('postgresql://', 'postgresql+asyncpg://')
-
-    @property
-    def sync_database_url(self) -> str:
-        return self.database_url.replace('postgresql://', 'postgresql+psycopg2://')
+    # @property
+    # def async_database_url(self) -> str:
+    #     return self.database_url.replace('postgresql://', 'postgresql+asyncpg://')
+    #
+    # @property
+    # def sync_database_url(self) -> str:
+    #     return self.database_url.replace('postgresql://', 'postgresql+psycopg2://')
 
 # Global settings. Global instances of Settings are available in other modules.
 settings = Settings()
