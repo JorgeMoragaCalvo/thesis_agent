@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     # postgres_host: str = 'localhost'
     # postgres_port: int = 5432
 
-    chroma_persis_directory: str = './chroma_data'
+    chroma_persist_directory: str = './chroma_data'
     chroma_collection_documents: str = 'documents'
     chroma_collection_chunks: str = 'document_chunks'
 
