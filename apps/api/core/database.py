@@ -6,12 +6,11 @@ import logging
 
 import chromadb
 from chromadb.config import Settings as ChromaSettings
-import os
 from pathlib import Path
 
 from apps.api.config import settings
 from apps.api.models.db_models import Base
-from apps.api.models.db_models import (COLLECTION_DOCUMENTS, COLLECTION_CHUNKS, COLLECTION_QUERY_LOG)
+from apps.api.models.db_models import (COLLECTION_DOCUMENTS, COLLECTION_CHUNKS)
 
 logger = logging.getLogger(__name__)
 
@@ -162,3 +161,102 @@ class ChromaDBManager:
                 metadata={"description": "Document storage with full content"}
             )
         return self._documents_collection
+
+    @property
+    def chunks_collection(self):
+        """Get chunks collection."""
+        if self._chunks_collection is None:
+            self._chunks_collection = self.get_or_create_collection(
+                COLLECTION_CHUNKS,
+                metadata={"description": "Document chunks with embeddings for retrieval"}
+            )
+        return self._chunks_collection
+
+    def create_collections(self):
+        """Initialize all required collections."""
+        try:
+            # Access properties to trigger creation
+            _ = self.documents_collection
+            _ = self.chunks_collection
+            logger.info("All ChromaDB collections created successfully")
+        except Exception as e:
+            logger.error(f"Error creating ChromaDB collections: {e}")
+            raise
+
+    def delete_collection(self, collection_name: str):
+        """
+        Delete a ChromaDB collection.
+
+        Args:
+            collection_name: Name of the collection to delete
+        """
+        try:
+            self.client.delete_collection(name=collection_name)
+            logger.warning(f"Collection '{collection_name}' deleted")
+
+            # Reset cached collection references
+            if collection_name == COLLECTION_DOCUMENTS:
+                self._documents_collection = None
+            elif collection_name == COLLECTION_CHUNKS:
+                self._chunks_collection = None
+
+        except Exception as e:
+            logger.error(f"Error deleting collection '{collection_name}': {e}")
+            raise
+
+    def reset_database(self):
+        """Reset all collections (use with caution!)."""
+        try:
+            self.client.reset()
+            self._documents_collection = None
+            self._chunks_collection = None
+            logger.warning("ChromaDB reset - all collections deleted")
+        except Exception as e:
+            logger.error(f"Error resetting ChromaDB: {e}")
+            raise
+
+    def check_connection(self) -> bool:
+        """Check if ChromaDB is working."""
+        try:
+            _ = self.client.heartbeat()
+            return True
+        except Exception as e:
+            logger.error(f"ChromaDB connection check failed: {e}")
+            return False
+
+    def get_collection_stats(self, collection_name: str) -> dict:
+        """
+        Get statistics for a collection.
+
+        Args:
+            collection_name: Name of the collection
+
+        Returns:
+            Dictionary with collection statistics
+        """
+        try:
+            collection = self.client.get_collection(name=collection_name)
+            count = collection.count()
+
+            return {
+                "name": collection_name,
+                "count": count,
+                "metadata": collection.metadata
+            }
+        except Exception as e:
+            logger.error(f"Error getting stats for collection '{collection_name}': {e}")
+            return {
+                "name": collection_name,
+                "count": 0,
+                "error": str(e)
+            }
+
+chroma_manager = ChromaDBManager()
+
+def get_chroma_client() -> chromadb.Client:
+    """Get ChromaDB client instance."""
+    return chroma_manager.client
+
+def get_chunks_collection():
+    """Get chunks collection for dependency injection."""
+    return chroma_manager.chunks_collection
